@@ -30,7 +30,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List<User>> _getUsers() async {
     var data = await http.get(
       Uri.parse(
-          'http://www.json-generator.com/api/json/get/cpsMNBzmIy?indent=2'),
+        'http://www.json-generator.com/api/json/get/bWbynciXZu?indent=2',
+      ),
     );
 
     var jsonData = json.decode(data.body);
@@ -38,8 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
     List<User> users = [];
 
     for (var u in jsonData) {
-      User user =
-          User(u["index"], u["about"], u["name"], u["email"], u["picture"]);
+      User user = User(
+        u["index"],
+        u["about"],
+        u["author"],
+        u["album"],
+        u["cover"],
+      );
 
       users.add(user);
     }
@@ -72,17 +78,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(snapshot.data[index].picture),
+                      backgroundImage: NetworkImage(
+                        snapshot.data[index].cover,
+                      ),
                     ),
-                    title: Text(snapshot.data[index].name),
-                    subtitle: Text(snapshot.data[index].email),
+                    title: Text(
+                      snapshot.data[index].album,
+                    ),
+                    subtitle: Text(
+                      'By ${snapshot.data[index].author}',
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
                         new MaterialPageRoute(
-                          builder: (context) =>
-                              DetailPage(snapshot.data[index]),
+                          builder: (context) => DetailPage(
+                            snapshot.data[index],
+                          ),
                         ),
                       );
                     },
@@ -106,7 +118,7 @@ class DetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(user.name),
+        title: Text(user.album),
       ),
     );
   }
@@ -115,9 +127,15 @@ class DetailPage extends StatelessWidget {
 class User {
   final int index;
   final String about;
-  final String name;
-  final String email;
-  final String picture;
+  final String author;
+  final String album;
+  final String cover;
 
-  User(this.index, this.about, this.name, this.email, this.picture);
+  User(
+    this.index,
+    this.about,
+    this.author,
+    this.album,
+    this.cover,
+  );
 }
