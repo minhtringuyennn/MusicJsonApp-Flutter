@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:loading_animations/loading_animations.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 
 void main() => runApp(new MyApp());
@@ -27,85 +29,111 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<List<User>> _getUsers() async {
-    var data = await http.get(
-      Uri.parse(
-        'http://www.json-generator.com/api/json/get/bWbynciXZu?indent=2',
-      ),
-    );
+  List<User>? data;
 
-    var jsonData = json.decode(data.body);
+  Future<String> getJson() {
+    return rootBundle.loadString('assets/data.json');
+  }
+
+  void _getUsers() async {
+    var _data = await getJson();
+
+    var jsonData = json.decode(_data);
 
     List<User> users = [];
 
     for (var u in jsonData) {
       User user = User(
         u["index"],
-        u["about"],
-        u["author"],
+        u["name"],
         u["album"],
-        u["cover"],
+        u["picture"],
       );
 
       users.add(user);
     }
 
-    //print(users.length);
+    await Future.delayed(const Duration(seconds: 2));
 
-    return users;
+    setState(() {
+      data = users;
+    });
+
+    print('done');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUsers();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: Container(
-        child: FutureBuilder(
-          future: _getUsers(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            //print(snapshot.data);
-            if (snapshot.data == null) {
-              return Container(
-                child: Center(
-                  child: Text("Loading..."),
+    if (data == null) {
+      return new Scaffold(
+        backgroundColor: Colors.white,
+        body: Container(
+          child: Center(
+            child: LoadingBouncingGrid.square(
+              backgroundColor: Colors.red,
+              borderColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return new Scaffold(
+        appBar: new AppBar(
+          title: new Text(widget.title),
+        ),
+        body: Container(
+          child: ListView.builder(
+            itemCount: data!.length,
+            itemBuilder: (BuildContext, index) {
+              return Slidable(
+                key: ValueKey(index),
+                actionPane: SlidableDrawerActionPane(),
+                secondaryActions: <Widget>[
+                  IconSlideAction(
+                      caption: 'Delete',
+                      color: Colors.red.shade300,
+                      icon: Icons.remove_circle,
+                      closeOnTap: true,
+                      onTap: () {
+                        Fluttertoast.showToast(
+                          msg: 'Delete on ${index}',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                        );
+                      })
+                ],
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(data![index].picture),
+                  ),
+                  title: Text(
+                    data![index].album,
+                  ),
+                  subtitle: Text(
+                    'By ${data![index].name}',
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                        builder: (context) => DetailPage(data![index]),
+                      ),
+                    );
+                  },
                 ),
               );
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        snapshot.data[index].cover,
-                      ),
-                    ),
-                    title: Text(
-                      snapshot.data[index].album,
-                    ),
-                    subtitle: Text(
-                      'By ${snapshot.data[index].author}',
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                          builder: (context) => DetailPage(
-                            snapshot.data[index],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            }
-          },
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
 
@@ -126,16 +154,14 @@ class DetailPage extends StatelessWidget {
 
 class User {
   final int index;
-  final String about;
-  final String author;
+  final String name;
   final String album;
-  final String cover;
+  final String picture;
 
   User(
     this.index,
-    this.about,
-    this.author,
+    this.name,
     this.album,
-    this.cover,
+    this.picture,
   );
 }
