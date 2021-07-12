@@ -3,17 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:loading_animations/loading_animations.dart';
 import 'dart:convert';
 
-void main() => runApp(new MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: new MyHomePage(title: 'Music List'),
+      home: MyHomePage(title: 'Music List'),
     );
   }
 }
@@ -23,7 +23,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -35,7 +35,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _getUsers() async {
     var _data = await getJson();
-
     var userList = json.decode(_data) as List;
 
     List<User> users = userList.map((user) => User.fromJson(user)).toList();
@@ -49,6 +48,48 @@ class _MyHomePageState extends State<MyHomePage> {
     print('done');
   }
 
+  void _showDialog() async {
+    await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        contentPadding: const EdgeInsets.all(16.0),
+        content: Container(
+          height: 150,
+          child: Column(
+            children: <Widget>[
+              Flexible(
+                child: TextField(
+                  autofocus: true,
+                  decoration: InputDecoration(
+                      labelText: 'Song Name',
+                      hintText: 'eg. Never Gonna Give You Up'),
+                ),
+              ),
+              Flexible(
+                child: TextField(
+                  decoration: InputDecoration(
+                      labelText: 'Author', hintText: 'eg. Rick Astley'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              child: const Text('SAVE'),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          TextButton(
+              child: const Text('CANCLE'),
+              onPressed: () {
+                Navigator.pop(context);
+              })
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,9 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
       body: data == null
           ? Container(
@@ -72,11 +113,18 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             )
           : Container(
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: data!.length,
-                itemBuilder: (BuildContext, index) {
+                separatorBuilder: (context, int index) => const Divider(
+                  height: 2,
+                  thickness: 0.5,
+                  indent: 15,
+                  endIndent: 15,
+                ),
+                itemBuilder: (context, index) {
                   return Dismissible(
-                    key: new Key(data![index].album),
+                    key: Key(data![index].album),
+                    direction: DismissDirection.endToStart,
                     confirmDismiss: (direction) async {
                       return await showDialog(
                         context: context,
@@ -112,8 +160,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         print(json.encode(data));
                       });
                     },
-                    background: new Container(
-                      color: Colors.red.shade300,
+                    background: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                      color: Colors.red.shade400,
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
@@ -128,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          new MaterialPageRoute(
+                          MaterialPageRoute(
                             builder: (context) => DetailPage(data![index]),
                           ),
                         );
@@ -138,6 +192,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _showDialog(),
+      ),
     );
   }
 }
@@ -179,11 +237,10 @@ class User {
     );
   }
 
-  Map<String, dynamic> toJson() => 
-  {
-    'index': index,
-    'name': name,
-    'album': album,
-    'picture': picture,
-  };
+  Map<String, dynamic> toJson() => {
+        'index': index,
+        'name': name,
+        'album': album,
+        'picture': picture,
+      };
 }
