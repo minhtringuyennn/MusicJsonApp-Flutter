@@ -65,7 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _writeToFile() {
     print("Writing to file!");
-
     if (fileExists) {
       print("File exists");
       jsonFile!.writeAsStringSync(json.encode(data));
@@ -73,7 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
       print("File does not exist!");
       _createFile(dir!, fileName);
     }
-    //this.setState(() => _getSongList());
     print(data![data!.length - 1].album);
   }
 
@@ -84,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
         if (authorNameController.text.isEmpty) isAuthorNameValidate = false,
       },
     );
-
     return userInput.isNotEmpty;
   }
 
@@ -175,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Button(
+                  ButtonModal(
                     text: "Show your favorite song",
                     onPressed: () => showModalBottomSheet(
                       isScrollControlled: true,
@@ -194,13 +191,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildSheet() => DraggableScrollableSheet(
-        initialChildSize: 0.85,
-        minChildSize: 0.84,
-        maxChildSize: 0.85,
-        builder: (_, controller) => _listBuild(controller),
-      );
-
   Container _loadScreen() {
     return Container(
       child: Center(
@@ -213,7 +203,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Container _listBuild(ScrollController controller) {
+  Widget _buildSheet() => DraggableScrollableSheet(
+        initialChildSize: 0.87,
+        minChildSize: 0.85,
+        maxChildSize: 0.93,
+        builder: (_, controller) => _buildList(controller),
+      );
+
+  Container _buildList(ScrollController controller) {
     return Container(
       padding: EdgeInsets.only(top: 20, left: 10, right: 10),
       decoration: BoxDecoration(
@@ -225,12 +222,12 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: data!.length,
         separatorBuilder: (context, int index) =>
             const Divider(height: 2, thickness: 0.5, indent: 15, endIndent: 15),
-        itemBuilder: _songBuild,
+        itemBuilder: _buildSong,
       ),
     );
   }
 
-  Widget _songBuild(context, index) {
+  Widget _buildSong(context, index) {
     return Dismissible(
       key: Key(data![index].album),
       direction: DismissDirection.endToStart,
