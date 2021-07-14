@@ -8,6 +8,7 @@ import 'dart:io';
 
 import './user.dart';
 import './listdetail.dart';
+import './template_button.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -174,13 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildButton(
-                    text: 'Show my favourite play list',
-                    onClicked: () => showModalBottomSheet(
+                  Button(
+                    text: "Show your favorite song",
+                    onPressed: () => showModalBottomSheet(
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       context: context,
-                      builder: (context) => buildSheet(),
+                      builder: (context) => _buildSheet(),
                     ),
                   ),
                 ],
@@ -193,17 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildButton({required String text, required VoidCallback onClicked}) =>
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          shape: StadiumBorder(),
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-        ),
-        child: Text(text, style: TextStyle(fontSize: 20)),
-        onPressed: onClicked,
-      );
-
-  Widget buildSheet() => DraggableScrollableSheet(
+  Widget _buildSheet() => DraggableScrollableSheet(
         initialChildSize: 0.85,
         minChildSize: 0.84,
         maxChildSize: 0.85,
