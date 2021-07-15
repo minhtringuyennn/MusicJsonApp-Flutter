@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './user.dart';
+import '../user.dart';
 
 class DetailPage extends StatelessWidget {
   final User user;

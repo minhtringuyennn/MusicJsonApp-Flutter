@@ -6,9 +6,10 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:io';
 
-import './user.dart';
+import '../user.dart';
 import './listdetail.dart';
-import './template_button.dart';
+import '../button/template_modalButton.dart';
+import '../button/template_roundButton.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -181,6 +182,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) => _buildSheet(),
                     ),
                   ),
+                  ButtonRound(
+                    text: "CONTACT",
+                    onPressed: () => () {},
+                  )
                 ],
               ),
             ),
@@ -206,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildSheet() => DraggableScrollableSheet(
         initialChildSize: 0.87,
         minChildSize: 0.85,
-        maxChildSize: 0.93,
+        maxChildSize: 0.935,
         builder: (_, controller) => _buildList(controller),
       );
 
